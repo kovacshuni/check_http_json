@@ -144,7 +144,13 @@ end
 
 # Deal with a URI target.
 def uri_target(options)
-    uri = URI.parse(options[:uri])
+    raw_uri = options[:uri]
+    if not raw_uri =~ /^http/ then
+        say(options[:v], 'URI not present; assuming HTTP.')
+        raw_uri = 'http://' + raw_uri
+    end
+
+    uri = URI.parse(raw_uri)
     http = Net::HTTP.new(uri.host, uri.port)
 
     if uri.scheme == 'https' then
@@ -411,7 +417,6 @@ if options[:element_regex] then
     json_flat.each do |k,v|
         if k =~ Regexp.new(options[:element_regex]) then
             say(options[:v], "Found %s as %s" % [options[:element_regex], k])
-            element_found = true
             options[:element] = k
         end
     end
